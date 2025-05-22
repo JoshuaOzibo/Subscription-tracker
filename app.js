@@ -4,6 +4,7 @@ import { PORT } from './config/env.js';
 import userRouter from './routes/user.routes.js'
 import authRouter from './routes/auth.routes.js'
 import subscriptionRouter from './routes/subscription.routes.js'
+import connectToDatabase from './DataBase/MongoDb.js';
 
 const app = express();
 
@@ -15,8 +16,10 @@ app.use('/api/vi/subsriptions', subscriptionRouter);
 //   res.send('welcome to subscription tracker app');
 // });
 
-app.listen(PORT, () => {
+app.listen(PORT, async ()=> {
   console.log(`server running on port http://localhost:${PORT}`);
+
+  await connectToDatabase();
 });
 
 export default app;
