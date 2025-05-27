@@ -6,7 +6,7 @@ import authRouter from './routes/auth.routes.js'
 import subscriptionRouter from './routes/subscription.routes.js'
 
 import connectToDatabase from './DataBase/MongoDb.js';
-import errorMiddleware from './DataBase/models/middlewares/error.middleware.js';
+import errorMiddleware from './middlewares/error.middleware.js';
 import cookieParser from 'cookie-parser';
 
 const app = express();
