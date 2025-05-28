@@ -11,14 +11,16 @@ import cookieParser from 'cookie-parser';
 
 const app = express();
 
-app.use('/api/vi/auth', authRouter);
-app.use('/api/vi/users', userRouter);
-app.use('/api/vi/subsriptions', subscriptionRouter);
-
 //express default error handler
 app.use(express.json()); // this allow the app to allow json data send-in request or api calls
 app.use(express.urlencoded({extended: false}));  // this help to process the form data sent by an html form  in a simple format
 app.use(cookieParser());  // this read cookies from incoming requests so app can store incoming data
+
+app.use('/api/v1/auth', authRouter);
+app.use('/api/v1/users', userRouter);
+app.use('/api/v1/subscriptions', subscriptionRouter);
+
+
 
 //use middleware here 
 app.use(errorMiddleware);
