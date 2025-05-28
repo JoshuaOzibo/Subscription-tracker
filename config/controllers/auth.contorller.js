@@ -2,6 +2,7 @@ import mongoose from "mongoose";
 import User from "../../models/user.model.js";
 import bcrypt from "bcryptjs";
 import jwt from "jsonwebtoken";
+import { JWT_SECRET } from "../env.js";
 
 export const signUp = async (req, res, next) => {
   const session = await mongoose.startSession();
@@ -20,9 +21,6 @@ export const signUp = async (req, res, next) => {
       throw error;
     }
 
-    console.log("req.body:", req.body);
-
-
     //Hash password
     const salt = await bcrypt.genSalt(10);
     const hashedPassword = await bcrypt.hash(password, salt);
@@ -32,9 +30,13 @@ export const signUp = async (req, res, next) => {
       { session }
     );
 
-    const token = jwt.sign({userId: newUsers[0]._id}, process.env.JWT_SECRET, {
+    const token = jwt.sign(
+      { userId: newUsers[0]._id },
+      process.env.JWT_SECRET,
+      {
         expiresIn: process.env.JWT_EXPIRES_IN,
-    })
+      }
+    );
 
     await session.commitTransaction();
     session.endSession();
@@ -54,6 +56,39 @@ export const signUp = async (req, res, next) => {
   }
 };
 
-export const signIn = async (req, res, next) => {};
+export const signIn = async (req, res, next) => {
+  try {
+    const { email, password } = req.body;
+
+    const inDb = await User.findOne({ email });
+
+    if (!User) {
+      const error = new Error("User not found");
+      error.statusCode = 404;
+      throw error;
+    }
+
+    const isPasswordValid = await bcrypt.compare(password, inDb.password);
+
+    if (!isPasswordValid) {
+      const error = new Error("Invalid Password");
+      error.statusCode = 401;
+      throw error;
+    }
+
+    const token = jwt.sign({userId: inDb._id}, process.env.JWT_SECRET, {expiresIn: process.env.JWT_EXPIRES_IN});
+
+    res.status(200).json({
+        success: true,
+        message: 'User signed in successfully',
+        data: {
+            token,
+            inDb
+        }
+    })
+  } catch (error) {
+    next(error);
+  }
+};
 
 export const signOut = async (req, res, next) => {};
